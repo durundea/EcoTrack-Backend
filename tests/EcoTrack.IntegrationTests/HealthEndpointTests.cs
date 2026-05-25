@@ -4,11 +4,11 @@ using FluentAssertions;
 
 namespace EcoTrack.IntegrationTests;
 
-public class HealthEndpointTests : IClassFixture<IntegrationTestWebAppFactory>
+public class HealthEndpointTests : IClassFixture<LightWebAppFactory>
 {
     private readonly HttpClient _client;
 
-    public HealthEndpointTests(IntegrationTestWebAppFactory factory)
+    public HealthEndpointTests(LightWebAppFactory factory)
     {
         _client = factory.CreateClient();
     }
