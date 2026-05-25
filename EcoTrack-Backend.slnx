@@ -1,2 +1,10 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EcoTrack.Api/EcoTrack.Api.csproj" />
+    <Project Path="src/EcoTrack.Domain/EcoTrack.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EcoTrack.IntegrationTests/EcoTrack.IntegrationTests.csproj" />
+    <Project Path="tests/EcoTrack.UnitTests/EcoTrack.UnitTests.csproj" />
+  </Folder>
 </Solution>
