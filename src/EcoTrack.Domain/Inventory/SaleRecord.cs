@@ -43,6 +43,8 @@ public class SaleRecord
     {
         if (ApprovalStatus != SaleApprovalStatus.Draft)
             throw new InvalidOperationException("Only draft sales can be submitted for approval.");
+        if (actorRole == UserRole.Collector && actorUserId != RequestedByUserId)
+            throw new InvalidOperationException("Collectors can submit only their own sales.");
         ApprovalStatus = SaleApprovalStatus.PendingApproval;
         UpdatedAtUtc = DateTime.UtcNow;
     }

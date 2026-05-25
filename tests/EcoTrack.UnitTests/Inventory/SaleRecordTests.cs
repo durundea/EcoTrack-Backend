@@ -9,9 +9,10 @@ public class SaleRecordTests
     [Fact]
     public void SubmitForApproval_WhenStatusIsDraft_ChangesStatusToPendingApproval()
     {
-        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), Guid.NewGuid(), 2, 120m, DateTime.UtcNow);
+        var requestedById = Guid.NewGuid();
+        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), requestedById, 2, 120m, DateTime.UtcNow);
 
-        sale.SubmitForApproval(Guid.NewGuid(), UserRole.Collector);
+        sale.SubmitForApproval(requestedById, UserRole.Collector);
 
         sale.ApprovalStatus.Should().Be(SaleApprovalStatus.PendingApproval);
     }
@@ -20,8 +21,9 @@ public class SaleRecordTests
     public void Approve_WhenStatusIsPendingApproval_StoresApproverAndLocksRecord()
     {
         var approverId = Guid.NewGuid();
-        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), Guid.NewGuid(), 2, 120m, DateTime.UtcNow);
-        sale.SubmitForApproval(Guid.NewGuid(), UserRole.Collector);
+        var requestedById = Guid.NewGuid();
+        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), requestedById, 2, 120m, DateTime.UtcNow);
+        sale.SubmitForApproval(requestedById, UserRole.Collector);
 
         sale.Approve(approverId, UserRole.Admin, DateTime.UtcNow);
 
@@ -40,18 +42,32 @@ public class SaleRecordTests
     [Fact]
     public void SubmitForApproval_WhenAlreadyPending_ThrowsInvalidOperationException()
     {
-        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), Guid.NewGuid(), 1, 60m, DateTime.UtcNow);
-        sale.SubmitForApproval(Guid.NewGuid(), UserRole.Admin);
-        var action = () => sale.SubmitForApproval(Guid.NewGuid(), UserRole.Admin);
+        var requestedById = Guid.NewGuid();
+        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), requestedById, 1, 60m, DateTime.UtcNow);
+        sale.SubmitForApproval(requestedById, UserRole.Admin);
+        var action = () => sale.SubmitForApproval(requestedById, UserRole.Admin);
         action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
     public void Approve_WhenRoleIsCollector_ThrowsInvalidOperationException()
     {
-        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), Guid.NewGuid(), 1, 60m, DateTime.UtcNow);
-        sale.SubmitForApproval(Guid.NewGuid(), UserRole.Admin);
+        var requestedById = Guid.NewGuid();
+        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), requestedById, 1, 60m, DateTime.UtcNow);
+        sale.SubmitForApproval(requestedById, UserRole.Admin);
         var action = () => sale.Approve(Guid.NewGuid(), UserRole.Collector, DateTime.UtcNow);
         action.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void SubmitForApproval_WhenCollectorIsNotOwner_ThrowsInvalidOperationException()
+    {
+        var ownerId = Guid.NewGuid();
+        var otherId = Guid.NewGuid();
+        var sale = SaleRecord.CreateDraft(Guid.NewGuid(), ownerId, 1, 60m, DateTime.UtcNow);
+
+        var action = () => sale.SubmitForApproval(otherId, UserRole.Collector);
+
+        action.Should().Throw<InvalidOperationException>().WithMessage("*own*");
     }
 }
