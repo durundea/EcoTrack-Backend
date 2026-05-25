@@ -82,4 +82,13 @@ public class SaleRecord : Entity
         if (!CanBeModified)
             throw new InvalidOperationException("Approved sales cannot be modified.");
     }
+
+    public void UpdateDraft(int quantitySold, DateTime soldAtUtc, DateTime updatedAtUtc)
+    {
+        EnsureCanBeModified();
+        if (quantitySold <= 0) throw new ArgumentOutOfRangeException(nameof(quantitySold), "Quantity sold must be greater than zero.");
+        QuantitySold = quantitySold;
+        SoldAtUtc = soldAtUtc;
+        UpdatedAtUtc = updatedAtUtc;
+    }
 }
