@@ -1,10 +1,11 @@
+using EcoTrack.Domain.Common;
+
 namespace EcoTrack.Domain.Auth;
 
-public class User
+public class User : Entity
 {
     private User() { }
 
-    public Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
     public string PasswordHash { get; private set; } = string.Empty;
@@ -12,11 +13,11 @@ public class User
     public bool IsActive { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
 
-    public static User Create(string name, string email, string passwordHash, UserRole role)
+    public static User Create(string name, string email, string passwordHash, UserRole role, DateTime createdAtUtc)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException("Name is required.");
-        if (string.IsNullOrWhiteSpace(email)) throw new InvalidOperationException("Email is required.");
-        if (string.IsNullOrWhiteSpace(passwordHash)) throw new InvalidOperationException("Password hash is required.");
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required.", nameof(name));
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required.", nameof(email));
+        if (string.IsNullOrWhiteSpace(passwordHash)) throw new ArgumentException("Password hash is required.", nameof(passwordHash));
 
         return new User
         {
@@ -26,7 +27,7 @@ public class User
             PasswordHash = passwordHash,
             Role = role,
             IsActive = true,
-            CreatedAtUtc = DateTime.UtcNow,
+            CreatedAtUtc = createdAtUtc,
         };
     }
 }
