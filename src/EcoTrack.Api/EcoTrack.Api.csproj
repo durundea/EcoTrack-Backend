@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EcoTrack.Application\EcoTrack.Application.csproj" />
+    <ProjectReference Include="..\EcoTrack.Infrastructure\EcoTrack.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

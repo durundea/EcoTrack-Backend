@@ -1,7 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/EcoTrack.Api/EcoTrack.Api.csproj" />
+    <Project Path="src/EcoTrack.Application/EcoTrack.Application.csproj" />
     <Project Path="src/EcoTrack.Domain/EcoTrack.Domain.csproj" />
+    <Project Path="src/EcoTrack.Infrastructure/EcoTrack.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/EcoTrack.IntegrationTests/EcoTrack.IntegrationTests.csproj" />
