@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using EcoTrack.Api.Middleware;
+using EcoTrack.Infrastructure.Persistence;
 using EcoTrack.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +59,14 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactDevClient", policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -67,10 +76,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ApiExceptionMiddleware>();
+app.UseCors("ReactDevClient");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Seed development data
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await EcoTrack.Infrastructure.Persistence.Seed.DevelopmentDataSeeder.SeedAsync(db);
+}
 
 app.Run();
 
