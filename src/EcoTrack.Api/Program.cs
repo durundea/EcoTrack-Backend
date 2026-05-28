@@ -82,12 +82,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed development data
-if (app.Environment.IsDevelopment())
+// Run migrations and seed data on startup
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await EcoTrack.Infrastructure.Persistence.Seed.DevelopmentDataSeeder.SeedAsync(db);
+    await db.Database.MigrateAsync();
+
+    if (app.Environment.IsDevelopment())
+        await EcoTrack.Infrastructure.Persistence.Seed.DevelopmentDataSeeder.SeedAsync(db);
 }
 
 app.Run();
