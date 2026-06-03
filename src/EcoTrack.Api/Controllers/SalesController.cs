@@ -12,6 +12,30 @@ namespace EcoTrack.Api.Controllers;
 [Authorize]
 public class SalesController : ControllerBase
 {
+    [HttpGet]
+    public async Task<ActionResult<PagedResponse<SaleRecordResponse>>> Get(
+        [FromServices] SalesService service,
+        [FromQuery] GetSalesQueryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var role = User.FindFirstValue(ClaimTypes.Role)!;
+        var result = await service.GetSalesAsync(request, userId, role, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<SaleRecordResponse>> GetById(
+        Guid id,
+        [FromServices] SalesService service,
+        CancellationToken cancellationToken)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var role = User.FindFirstValue(ClaimTypes.Role)!;
+        var result = await service.GetByIdAsync(id, userId, role, cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost]
     public async Task<ActionResult<SaleRecordResponse>> Post(
         [FromServices] SalesService service,

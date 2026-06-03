@@ -34,6 +34,10 @@ public class ApiExceptionMiddleware
         {
             await WriteErrorAsync(context, HttpStatusCode.Conflict, ex.Message);
         }
+        catch (BadRequestException ex)
+        {
+            await WriteErrorAsync(context, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
