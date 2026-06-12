@@ -128,6 +128,9 @@ Use sales filtered by:
   - Sum(revenueInr) from included sales.
 - Recycling Efficiency (%):
   - approved_or_pending_sold_kg / total_collected_kg_in_range * 100
+  - For v1, total_collected_kg_in_range is sourced from current inventory snapshot:
+    Sum(InventoryItem.QuantityKg) after applying the same wasteType filter.
+  - This is an operational approximation until collection event history is modeled.
   - If denominator is 0, return 0.
 - CO2 Reduction (kg):
   - Sum(sold_kg * category_factor_kg_co2_per_kg)
