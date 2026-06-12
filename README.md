@@ -82,9 +82,13 @@ Swagger UI is available at `https://localhost:<port>/swagger`.
 | `POST` | `/api/inventory/items` | Admin | Create item |
 | `PATCH` | `/api/inventory/items/{id}/price` | Admin | Update price |
 | `POST` | `/api/inventory/sales` | Bearer | Create draft sale |
+| `GET` | `/api/inventory/sales` | Bearer | List sales (filters, sorting, paging) |
+| `GET` | `/api/inventory/sales/{id}` | Bearer | Get sale by id (role-aware visibility) |
 | `POST` | `/api/inventory/sales/{id}/submit` | Bearer | Submit for approval |
 | `POST` | `/api/inventory/sales/{id}/approve` | Admin | Approve sale |
 | `PUT` | `/api/inventory/sales/{id}` | Bearer | Update draft |
+
+`GET /api/inventory/sales` supports query params: `status`, `requestedByUserId`, `fromSoldAtUtc`, `toSoldAtUtc`, `inventoryItemId`, `sortBy`, `sortDirection`, `page`, `pageSize`.
 
 ## Running Tests
 

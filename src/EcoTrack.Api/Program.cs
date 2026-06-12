@@ -4,6 +4,7 @@ using EcoTrack.Api.Middleware;
 using EcoTrack.Infrastructure.Persistence;
 using EcoTrack.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -86,7 +87,14 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    if (db.Database.IsRelational())
+    {
+        await db.Database.MigrateAsync();
+    }
+    else
+    {
+        await db.Database.EnsureCreatedAsync();
+    }
 
     if (app.Environment.IsDevelopment())
         await EcoTrack.Infrastructure.Persistence.Seed.DevelopmentDataSeeder.SeedAsync(db);
