@@ -87,8 +87,15 @@ Swagger UI is available at `https://localhost:<port>/swagger`.
 | `POST` | `/api/inventory/sales/{id}/submit` | Bearer | Submit for approval |
 | `POST` | `/api/inventory/sales/{id}/approve` | Admin | Approve sale |
 | `PUT` | `/api/inventory/sales/{id}` | Bearer | Update draft |
+| `GET` | `/api/analytics/dashboard` | Admin, Collector | Dashboard KPIs, category charts/table, pending approvals |
 
 `GET /api/inventory/sales` supports query params: `status`, `requestedByUserId`, `fromSoldAtUtc`, `toSoldAtUtc`, `inventoryItemId`, `sortBy`, `sortDirection`, `page`, `pageSize`.
+
+`GET /api/analytics/dashboard` supports query params: `fromUtc`, `toUtc`, `wasteType`.
+
+- `wasteType`: `all` (default), `rawWaste`, `recycledProduct`
+- default range: last 30 days when both bounds are omitted
+- if one bound is omitted, the other bound is inferred using a 30-day window
 
 ## Running Tests
 

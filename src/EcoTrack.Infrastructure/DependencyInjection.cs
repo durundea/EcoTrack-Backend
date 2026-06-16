@@ -21,11 +21,14 @@ public static class DependencyInjection
             provider.GetRequiredService<AppDbContext>());
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<DashboardAnalyticsOptions>(
+            configuration.GetSection(DashboardAnalyticsOptions.SectionName));
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<LoginService>();
         services.AddScoped<InventoryService>();
         services.AddScoped<SalesService>();
+        services.AddScoped<DashboardAnalyticsService>();
 
         return services;
     }
