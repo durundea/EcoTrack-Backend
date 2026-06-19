@@ -21,6 +21,10 @@ public class PickupAssignmentEvent : Entity
         DateTime changedAtUtc,
         string? note)
     {
+        if (pickupTaskId == Guid.Empty) throw new ArgumentException("PickupTaskId is required.", nameof(pickupTaskId));
+        if (newCollectorUserId == Guid.Empty) throw new ArgumentException("NewCollectorUserId is required.", nameof(newCollectorUserId));
+        if (changedByUserId == Guid.Empty) throw new ArgumentException("ChangedByUserId is required.", nameof(changedByUserId));
+
         return new PickupAssignmentEvent
         {
             Id = Guid.NewGuid(),

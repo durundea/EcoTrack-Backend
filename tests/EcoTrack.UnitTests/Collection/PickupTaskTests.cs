@@ -42,9 +42,79 @@ public class PickupTaskTests
         var now = DateTime.UtcNow;
         var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
 
-        Action act = () => pickup.SendToSegregation(Guid.NewGuid(), now.AddHours(2));
+        Action act = () => pickup.SendToSegregation(now.AddHours(2));
 
         act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void UpdateByAdmin_WithEmptySiteName_ThrowsArgumentException()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+
+        Action act = () => pickup.UpdateByAdmin(" ", "Updated Address", now.AddDays(2), 150m, null, now.AddMinutes(1));
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void UpdateByAdmin_WithEmptySiteAddress_ThrowsArgumentException()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+
+        Action act = () => pickup.UpdateByAdmin("Updated Site", "", now.AddDays(2), 150m, null, now.AddMinutes(1));
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AssignCollector_WithEmptyCollectorId_ThrowsArgumentException()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+
+        Action act = () => pickup.AssignCollector(Guid.Empty, Guid.NewGuid(), now.AddMinutes(5), null);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AssignCollector_WithEmptyAdminId_ThrowsArgumentException()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+
+        Action act = () => pickup.AssignCollector(Guid.NewGuid(), Guid.Empty, now.AddMinutes(5), null);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AssignCollector_RecordsEventFields_PreviousNewAndChangedBy()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+        var firstAdminId = Guid.NewGuid();
+        var secondAdminId = Guid.NewGuid();
+        var firstCollectorId = Guid.NewGuid();
+        var secondCollectorId = Guid.NewGuid();
+
+        pickup.AssignCollector(firstCollectorId, firstAdminId, now.AddMinutes(5), "first assign");
+        pickup.AssignCollector(secondCollectorId, secondAdminId, now.AddMinutes(10), "reassign");
+
+        pickup.AssignmentEvents.Should().HaveCount(2);
+
+        var firstEvent = pickup.AssignmentEvents.ElementAt(0);
+        firstEvent.PreviousCollectorUserId.Should().BeNull();
+        firstEvent.NewCollectorUserId.Should().Be(firstCollectorId);
+        firstEvent.ChangedByUserId.Should().Be(firstAdminId);
+
+        var secondEvent = pickup.AssignmentEvents.ElementAt(1);
+        secondEvent.PreviousCollectorUserId.Should().Be(firstCollectorId);
+        secondEvent.NewCollectorUserId.Should().Be(secondCollectorId);
+        secondEvent.ChangedByUserId.Should().Be(secondAdminId);
     }
 
     [Fact]

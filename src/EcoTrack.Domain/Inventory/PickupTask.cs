@@ -59,6 +59,9 @@ public class PickupTask : Entity
 
     public void AssignCollector(Guid newCollectorUserId, Guid changedByUserId, DateTime changedAtUtc, string? note)
     {
+        if (newCollectorUserId == Guid.Empty) throw new ArgumentException("NewCollectorUserId is required.", nameof(newCollectorUserId));
+        if (changedByUserId == Guid.Empty) throw new ArgumentException("ChangedByUserId is required.", nameof(changedByUserId));
+
         if (Status is PickupStatus.Cancelled or PickupStatus.SentToSegregation or PickupStatus.Collected)
             throw new InvalidOperationException("Pickup cannot be assigned in current status.");
 
@@ -84,7 +87,7 @@ public class PickupTask : Entity
         UpdatedAtUtc = collectedAtUtc;
     }
 
-    public void SendToSegregation(Guid actorUserId, DateTime movedAtUtc)
+    public void SendToSegregation(DateTime movedAtUtc)
     {
         if (Status != PickupStatus.Collected) throw new InvalidOperationException("Only collected pickups can be sent to segregation.");
 
@@ -114,6 +117,10 @@ public class PickupTask : Entity
     {
         if (Status is PickupStatus.Cancelled or PickupStatus.SentToSegregation)
             throw new InvalidOperationException("Terminal pickups cannot be edited.");
+        if (string.IsNullOrWhiteSpace(siteName))
+            throw new ArgumentException("SiteName is required.", nameof(siteName));
+        if (string.IsNullOrWhiteSpace(siteAddressText))
+            throw new ArgumentException("SiteAddressText is required.", nameof(siteAddressText));
         if (estimatedWeightKg <= 0m)
             throw new ArgumentOutOfRangeException(nameof(estimatedWeightKg), "EstimatedWeightKg must be greater than zero.");
 
