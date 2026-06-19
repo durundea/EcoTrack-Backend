@@ -97,6 +97,9 @@ public class PickupTask : Entity
 
     public void Cancel(Guid cancelledByUserId, DateTime cancelledAtUtc, string? reason)
     {
+        if (cancelledByUserId == Guid.Empty)
+            throw new ArgumentException("CancelledByUserId is required.", nameof(cancelledByUserId));
+
         if (Status != PickupStatus.Scheduled && Status != PickupStatus.Assigned)
             throw new InvalidOperationException("Only scheduled or assigned pickups can be cancelled.");
 

@@ -37,6 +37,17 @@ public class PickupTaskTests
     }
 
     [Fact]
+    public void Cancel_WithEmptyCancelledByUserId_ThrowsArgumentException()
+    {
+        var now = DateTime.UtcNow;
+        var pickup = PickupTask.CreateScheduled("Green Residency", "Block A", now.AddDays(1), 120m, null, Guid.NewGuid(), now, "P-1001");
+
+        Action act = () => pickup.Cancel(Guid.Empty, now.AddHours(2), "missing actor");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void SendToSegregation_WithoutCollectedStatus_ThrowsInvalidOperationException()
     {
         var now = DateTime.UtcNow;
