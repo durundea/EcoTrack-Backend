@@ -9,5 +9,7 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
     DbSet<InventoryItem> InventoryItems { get; }
     DbSet<SaleRecord> SaleRecords { get; }
+    DbSet<PickupTask> PickupTasks { get; }
+    DbSet<PickupAssignmentEvent> PickupAssignmentEvents { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
