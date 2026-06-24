@@ -88,6 +88,15 @@ Swagger UI is available at `https://localhost:<port>/swagger`.
 | `POST` | `/api/inventory/sales/{id}/approve` | Admin | Approve sale |
 | `PUT` | `/api/inventory/sales/{id}` | Bearer | Update draft |
 | `GET` | `/api/analytics/dashboard` | Admin, Collector | Dashboard KPIs, category charts/table, pending approvals |
+| `GET` | `/api/collection/pickups` | Bearer | List pickups (status, paging, sorting) |
+| `GET` | `/api/collection/pickups/{id}` | Bearer | Get pickup by id |
+| `POST` | `/api/collection/pickups` | Admin | Create pickup |
+| `PUT` | `/api/collection/pickups/{id}` | Bearer | Update pickup |
+| `POST` | `/api/collection/pickups/{id}/assign` | Admin | Assign or reassign collector |
+| `POST` | `/api/collection/pickups/{id}/mark-collected` | Bearer | Mark pickup collected |
+| `POST` | `/api/collection/pickups/{id}/send-to-segregation` | Admin | Send collected pickup to segregation |
+| `DELETE` | `/api/collection/pickups/{id}` | Admin | Cancel pickup (soft delete) |
+| `GET` | `/api/collection/pickups/{id}/assignment-history` | Bearer | View assignment history |
 
 `GET /api/inventory/sales` supports query params: `status`, `requestedByUserId`, `fromSoldAtUtc`, `toSoldAtUtc`, `inventoryItemId`, `sortBy`, `sortDirection`, `page`, `pageSize`.
 

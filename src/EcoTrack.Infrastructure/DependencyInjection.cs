@@ -1,5 +1,6 @@
 using EcoTrack.Application.Auth.Interfaces;
 using EcoTrack.Application.Auth.Login;
+using EcoTrack.Application.Collection;
 using EcoTrack.Application.Common.Interfaces;
 using EcoTrack.Application.Inventory;
 using EcoTrack.Infrastructure.Persistence;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<LoginService>();
+        services.AddScoped<CollectionService>();
         services.AddScoped<InventoryService>();
         services.AddScoped<SalesService>();
         services.AddScoped<DashboardAnalyticsService>();
