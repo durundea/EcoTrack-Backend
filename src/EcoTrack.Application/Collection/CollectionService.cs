@@ -226,6 +226,17 @@ public class CollectionService
         try
         {
             pickup.SendToSegregation(DateTime.UtcNow);
+
+            var existingBatch = await _dbContext.SegregationBatches
+                .AsNoTracking()
+                .AnyAsync(x => x.PickupTaskId == pickup.Id, cancellationToken);
+
+            if (!existingBatch)
+            {
+                var batchCode = await GenerateSegregationBatchCodeAsync(cancellationToken);
+                var batch = SegregationBatch.CreatePending(pickup.Id, batchCode, DateTime.UtcNow);
+                _dbContext.SegregationBatches.Add(batch);
+            }
         }
         catch (InvalidOperationException ex)
         {
@@ -362,5 +373,11 @@ public class CollectionService
     {
         var count = await _dbContext.PickupTasks.CountAsync(cancellationToken);
         return $"P-{1001 + count}";
+    }
+
+    private async Task<string> GenerateSegregationBatchCodeAsync(CancellationToken cancellationToken)
+    {
+        var count = await _dbContext.SegregationBatches.CountAsync(cancellationToken);
+        return $"SB-{count + 1:D4}";
     }
 }

@@ -11,5 +11,6 @@ public interface IApplicationDbContext
     DbSet<SaleRecord> SaleRecords { get; }
     DbSet<PickupTask> PickupTasks { get; }
     DbSet<PickupAssignmentEvent> PickupAssignmentEvents { get; }
+    DbSet<SegregationBatch> SegregationBatches { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

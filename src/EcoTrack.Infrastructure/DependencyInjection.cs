@@ -3,6 +3,7 @@ using EcoTrack.Application.Auth.Login;
 using EcoTrack.Application.Collection;
 using EcoTrack.Application.Common.Interfaces;
 using EcoTrack.Application.Inventory;
+using EcoTrack.Application.Segregation;
 using EcoTrack.Infrastructure.Persistence;
 using EcoTrack.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<LoginService>();
         services.AddScoped<CollectionService>();
+        services.AddScoped<SegregationService>();
         services.AddScoped<InventoryService>();
         services.AddScoped<SalesService>();
         services.AddScoped<DashboardAnalyticsService>();

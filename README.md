@@ -97,6 +97,11 @@ Swagger UI is available at `https://localhost:<port>/swagger`.
 | `POST` | `/api/collection/pickups/{id}/send-to-segregation` | Admin | Send collected pickup to segregation |
 | `DELETE` | `/api/collection/pickups/{id}` | Admin | Cancel pickup (soft delete) |
 | `GET` | `/api/collection/pickups/{id}/assignment-history` | Bearer | View assignment history |
+| `GET` | `/api/segregation/batches` | Admin | List segregation batches (status, paging) |
+| `GET` | `/api/segregation/batches/pending` | Admin | List pending segregation batches |
+| `GET` | `/api/segregation/batches/{id}` | Admin | Get segregation batch detail with pickup linkage |
+| `POST` | `/api/segregation/batches/{id}/record` | Admin | Record segregation waste category weights |
+| `POST` | `/api/segregation/batches/{id}/mark-recycled` | Admin | Mark a recorded segregation batch as recycled |
 
 `GET /api/inventory/sales` supports query params: `status`, `requestedByUserId`, `fromSoldAtUtc`, `toSoldAtUtc`, `inventoryItemId`, `sortBy`, `sortDirection`, `page`, `pageSize`.
 
