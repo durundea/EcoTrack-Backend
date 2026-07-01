@@ -14,6 +14,7 @@ public class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<SaleRecord> SaleRecords => Set<SaleRecord>();
     public DbSet<PickupTask> PickupTasks => Set<PickupTask>();
     public DbSet<PickupAssignmentEvent> PickupAssignmentEvents => Set<PickupAssignmentEvent>();
+    public DbSet<SegregationBatch> SegregationBatches => Set<SegregationBatch>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
