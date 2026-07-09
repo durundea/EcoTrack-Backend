@@ -54,4 +54,11 @@ public class InventoryItem : Entity
         Unit = unit;
         UpdatedAtUtc = updatedAtUtc;
     }
+
+    public void AddQuantity(decimal amount)
+    {
+        if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
+        QuantityKg += amount;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }
