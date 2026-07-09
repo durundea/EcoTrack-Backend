@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using EcoTrack.Application.Inventory.Contracts;
 using EcoTrack.Application.Recycling;
 using EcoTrack.Application.Recycling.Contracts;
 using Microsoft.AspNetCore.Authorization;
