@@ -187,6 +187,9 @@ public class CollectionService
             throw new BadRequestException(ex.Message);
         }
 
+        var assignmentEvent = pickup.AssignmentEvents.Last();
+        _dbContext.PickupAssignmentEvents.Add(assignmentEvent);
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await ToDetailResponseAsync(pickup, cancellationToken);
     }
