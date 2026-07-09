@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using EcoTrack.Application.Inventory.Contracts;
 using EcoTrack.Application.Recycling.Contracts;
 using EcoTrack.Domain.Inventory;
 using Xunit;
@@ -30,7 +31,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         Assert.NotNull(result);
         Assert.True(result.Items.Count > 0);
         Assert.Contains(result.Items, x => x.SourceCategory == "plastic" && x.SourceWeightKg == 10);
@@ -45,7 +46,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
             plasticKg: 15);
 
         var listResponse = await _client.GetAsync("/api/recycling/batches?page=1&pageSize=20");
-        var batchesList = await listResponse.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var batchesList = await listResponse.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         var batch = batchesList.Items.First(x => x.SourceCategory == "plastic");
 
         // Act
@@ -53,7 +54,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadAsAsync<RecyclingBatchDetailResponse>();
+        var result = await response.Content.ReadFromJsonAsync<RecyclingBatchDetailResponse>();
         Assert.NotNull(result);
         Assert.Equal("Segregated", result.Stage);
         Assert.NotEmpty(result.StageHistory);
@@ -67,7 +68,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
         var segregationBatch = await _factory.CreateSegregationBatchWithRecordingAsync(plasticKg: 10);
 
         var listResponse = await _client.GetAsync("/api/recycling/batches?page=1&pageSize=20");
-        var batchesList = await listResponse.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var batchesList = await listResponse.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         var batch = batchesList.Items.First(x => x.SourceCategory == "plastic");
 
         // Act
@@ -77,7 +78,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var result = await response.Content.ReadAsAsync<RecyclingBatchDetailResponse>();
+        var result = await response.Content.ReadFromJsonAsync<RecyclingBatchDetailResponse>();
         Assert.Equal("Processing", result.Stage);
         Assert.True(result.StageHistory.Count > 1);
     }
@@ -89,7 +90,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
         var segregationBatch = await _factory.CreateSegregationBatchWithRecordingAsync(plasticKg: 10);
 
         var listResponse = await _client.GetAsync("/api/recycling/batches?page=1&pageSize=20");
-        var batchesList = await listResponse.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var batchesList = await listResponse.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         var batch = batchesList.Items.First(x => x.SourceCategory == "plastic");
 
         // Advance to Processing
@@ -110,7 +111,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, createConversionResponse.StatusCode);
-        var result = await createConversionResponse.Content.ReadAsAsync<ProductConversionResponse>();
+        var result = await createConversionResponse.Content.ReadFromJsonAsync<ProductConversionResponse>();
         Assert.NotNull(result);
         Assert.Equal("Flakes", result.ProductName);
         Assert.Equal(8m, result.Quantity);
@@ -123,7 +124,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
         var segregationBatch = await _factory.CreateSegregationBatchWithRecordingAsync(plasticKg: 10);
 
         var listResponse = await _client.GetAsync("/api/recycling/batches?page=1&pageSize=20");
-        var batchesList = await listResponse.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var batchesList = await listResponse.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         var batch = batchesList.Items.First(x => x.SourceCategory == "plastic");
 
         // Act - Try to create conversion when batch is in Segregated stage
@@ -142,7 +143,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
         var segregationBatch = await _factory.CreateSegregationBatchWithRecordingAsync(plasticKg: 10);
 
         var listResponse = await _client.GetAsync("/api/recycling/batches?page=1&pageSize=20");
-        var batchesList = await listResponse.Content.ReadAsAsync<PagedResponse<RecyclingBatchListItemResponse>>();
+        var batchesList = await listResponse.Content.ReadFromJsonAsync<PagedResponse<RecyclingBatchListItemResponse>>();
         var batch = batchesList.Items.First(x => x.SourceCategory == "plastic");
 
         // Advance to Converted and create conversion
@@ -163,7 +164,7 @@ public class RecyclingEndpointsTests : IClassFixture<IntegrationTestWebAppFactor
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, syncResponse.StatusCode);
-        var syncResult = await syncResponse.Content.ReadAsAsync<InventorySyncResponse>();
+        var syncResult = await syncResponse.Content.ReadFromJsonAsync<InventorySyncResponse>();
         Assert.NotNull(syncResult);
         Assert.True(syncResult.CreatedItemsCount > 0 || syncResult.UpdatedItemsCount > 0);
     }
