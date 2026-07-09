@@ -143,5 +143,7 @@ public class DashboardAnalyticsServiceTests
         public DbSet<PickupTask> PickupTasks => Set<PickupTask>();
         public DbSet<PickupAssignmentEvent> PickupAssignmentEvents => Set<PickupAssignmentEvent>();
         public DbSet<SegregationBatch> SegregationBatches => Set<SegregationBatch>();
+        public DbSet<RecyclingBatch> RecyclingBatches => Set<RecyclingBatch>();
+        public DbSet<ProductConversion> ProductConversions => Set<ProductConversion>();
     }
 }
