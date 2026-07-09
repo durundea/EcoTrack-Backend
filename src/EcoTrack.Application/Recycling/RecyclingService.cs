@@ -26,6 +26,8 @@ public class RecyclingService
         var query = _dbContext.RecyclingBatches.AsNoTracking();
 
         var totalCount = await query.CountAsync(cancellationToken);
+        var totalPages = (totalCount + pageSize - 1) / pageSize;
+        
         var items = await query
             .OrderBy(x => x.CreatedAtUtc)
             .Skip((page - 1) * pageSize)
@@ -46,7 +48,8 @@ public class RecyclingService
             items,
             page,
             pageSize,
-            totalCount);
+            totalCount,
+            totalPages);
     }
 
     public async Task<RecyclingBatchDetailResponse> GetByIdAsync(
