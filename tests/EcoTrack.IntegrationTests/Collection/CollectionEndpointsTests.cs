@@ -45,6 +45,42 @@ public class CollectionEndpointsTests : IClassFixture<IntegrationTestWebAppFacto
         payload!.Items.Should().Contain(x => x.SiteName == "Green Residency");
     }
 
+    [Fact]
+    public async Task AdminCanAssignPickupToCollector()
+    {
+        await AuthenticateAsAdminAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/collection/pickups", new
+        {
+            siteName = "Assignment Site",
+            siteAddressText = "Block B",
+            scheduledAtUtc = DateTime.UtcNow.AddDays(1),
+            estimatedWeightKg = 80.0m,
+            notes = "Assign flow"
+        });
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var pickup = await createResponse.Content.ReadFromJsonAsync<PickupDetailContract>();
+        pickup.Should().NotBeNull();
+
+        var collectorId = await GetCollectorUserIdAsync();
+
+        var assignResponse = await _client.PostAsJsonAsync($"/api/collection/pickups/{pickup!.Id}/assign", new
+        {
+            assignedCollectorUserId = collectorId,
+            note = "Assigned for pickup run"
+        });
+
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var assigned = await assignResponse.Content.ReadFromJsonAsync<PickupDetailContract>();
+        assigned.Should().NotBeNull();
+        assigned!.AssignedCollectorUserId.Should().Be(collectorId);
+        assigned.Status.Should().Be("Assigned");
+        assigned.AssignmentEvents.Should().ContainSingle();
+    }
+
     private async Task AuthenticateAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new { email = "admin@ecotrack.local", password = "admin123" });
@@ -52,7 +88,21 @@ public class CollectionEndpointsTests : IClassFixture<IntegrationTestWebAppFacto
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload!.Token);
     }
 
+    private async Task<Guid> GetCollectorUserIdAsync()
+    {
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new { email = "collector@ecotrack.local", password = "collector123" });
+        var payload = await login.Content.ReadFromJsonAsync<AuthPayload>();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload!.Token);
+
+        var me = await _client.GetFromJsonAsync<MeContract>("/api/auth/me");
+        await AuthenticateAsAdminAsync();
+
+        return me!.Id;
+    }
+
     private sealed record AuthPayload(string Token);
+
+    private sealed record MeContract(Guid Id, string Name, string Email, string Role);
 
     private sealed record PagedPickupsContract(
         List<PickupContract> Items,
@@ -73,4 +123,33 @@ public class CollectionEndpointsTests : IClassFixture<IntegrationTestWebAppFacto
         Guid? AssignedCollectorUserId,
         string? AssignedCollectorDisplayName,
         string? Notes);
+
+    private sealed record PickupDetailContract(
+        Guid Id,
+        string PickupCode,
+        string SiteName,
+        string SiteAddressText,
+        DateTime ScheduledAtUtc,
+        decimal EstimatedWeightKg,
+        decimal? CollectedWeightKg,
+        string Status,
+        Guid? AssignedCollectorUserId,
+        string? AssignedCollectorDisplayName,
+        string? Notes,
+        Guid CreatedByUserId,
+        DateTime CreatedAtUtc,
+        DateTime UpdatedAtUtc,
+        Guid? CancelledByUserId,
+        DateTime? CancelledAtUtc,
+        string? CancelReason,
+        List<AssignmentEventContract> AssignmentEvents);
+
+    private sealed record AssignmentEventContract(
+        Guid Id,
+        Guid PickupTaskId,
+        Guid? PreviousCollectorUserId,
+        Guid NewCollectorUserId,
+        Guid ChangedByUserId,
+        DateTime ChangedAtUtc,
+        string? Note);
 }

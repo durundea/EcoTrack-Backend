@@ -3,6 +3,7 @@ using EcoTrack.Application.Auth.Login;
 using EcoTrack.Application.Collection;
 using EcoTrack.Application.Common.Interfaces;
 using EcoTrack.Application.Inventory;
+using EcoTrack.Application.Recycling;
 using EcoTrack.Application.Segregation;
 using EcoTrack.Infrastructure.Persistence;
 using EcoTrack.Infrastructure.Security;
@@ -33,6 +34,8 @@ public static class DependencyInjection
         services.AddScoped<InventoryService>();
         services.AddScoped<SalesService>();
         services.AddScoped<DashboardAnalyticsService>();
+        services.AddScoped<RecyclingService>();
+        services.AddScoped<InventorySyncService>();
 
         return services;
     }

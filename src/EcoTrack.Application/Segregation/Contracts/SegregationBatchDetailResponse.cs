@@ -20,4 +20,6 @@ public sealed record SegregationBatchDetailResponse(
     Guid? RecycledByUserId,
     DateTime? RecycledAtUtc,
     DateTime CreatedAtUtc,
-    DateTime UpdatedAtUtc);
+    DateTime UpdatedAtUtc,
+    List<Guid> CreatedRecyclingBatchIds,
+    int CreatedRecyclingCount);

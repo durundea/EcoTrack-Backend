@@ -10,6 +10,7 @@ public class PickupAssignmentEventConfiguration : IEntityTypeConfiguration<Picku
     {
         builder.ToTable("PickupAssignmentEvents");
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).ValueGeneratedOnAdd();
 
         builder.Property(a => a.PickupTaskId).IsRequired();
         builder.Property(a => a.PreviousCollectorUserId);

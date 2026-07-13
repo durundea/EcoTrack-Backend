@@ -12,5 +12,7 @@ public interface IApplicationDbContext
     DbSet<PickupTask> PickupTasks { get; }
     DbSet<PickupAssignmentEvent> PickupAssignmentEvents { get; }
     DbSet<SegregationBatch> SegregationBatches { get; }
+    DbSet<RecyclingBatch> RecyclingBatches { get; }
+    DbSet<ProductConversion> ProductConversions { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

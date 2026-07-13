@@ -66,40 +66,58 @@ public class SegregationService
     }
 
     public async Task<SegregationBatchDetailResponse> RecordAsync(
-        Guid id,
+        Guid batchId,
         RecordSegregationDataRequest request,
         Guid actorUserId,
         CancellationToken cancellationToken)
     {
-        var batch = await _dbContext.SegregationBatches.SingleOrDefaultAsync(x => x.Id == id, cancellationToken)
-            ?? throw new NotFoundException("Segregation batch not found");
+        var batch = await _dbContext.SegregationBatches
+            .FirstOrDefaultAsync(x => x.Id == batchId, cancellationToken)
+            ?? throw new NotFoundException($"SegregationBatch with ID '{batchId}' not found.");
 
-        try
+        batch.Record(
+            request.PlasticKg,
+            request.OrganicKg,
+            request.MetalKg,
+            request.PaperKg,
+            request.EWasteKg,
+            actorUserId,
+            DateTime.UtcNow);
+
+        _dbContext.SegregationBatches.Update(batch);
+
+        // Auto-create recycling batches for each non-zero category
+        var createdBatchIds = new List<Guid>();
+        var categories = new[] 
         {
-            batch.Record(
-                request.PlasticKg,
-                request.OrganicKg,
-                request.MetalKg,
-                request.PaperKg,
-                request.EWasteKg,
-                actorUserId,
-                DateTime.UtcNow);
-        }
-        catch (InvalidOperationException ex)
+            ("plastic", request.PlasticKg),
+            ("organic", request.OrganicKg),
+            ("metal", request.MetalKg),
+            ("paper", request.PaperKg),
+            ("ewaste", request.EWasteKg)
+        };
+
+        foreach (var (category, weight) in categories)
         {
-            throw new BadRequestException(ex.Message);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            throw new BadRequestException(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            throw new BadRequestException(ex.Message);
+            if (weight > 0)
+            {
+                var recyclingBatch = RecyclingBatch.CreateFromSegregation(
+                    batch.Id,
+                    batch.PickupTaskId,
+                    category,
+                    weight,
+                    actorUserId,
+                    DateTime.UtcNow);
+
+                _dbContext.RecyclingBatches.Add(recyclingBatch);
+                createdBatchIds.Add(recyclingBatch.Id);
+            }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return await GetByIdAsync(id, cancellationToken);
+
+        // Map to response
+        return await MapToDetailResponseAsync(batch, createdBatchIds, cancellationToken);
     }
 
     public async Task<SegregationBatchDetailResponse> MarkRecycledAsync(Guid id, Guid actorUserId, CancellationToken cancellationToken)
@@ -122,6 +140,40 @@ public class SegregationService
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await GetByIdAsync(id, cancellationToken);
+    }
+
+    private async Task<SegregationBatchDetailResponse> MapToDetailResponseAsync(
+        SegregationBatch batch,
+        List<Guid> createdRecyclingBatchIds,
+        CancellationToken cancellationToken)
+    {
+        var pickupTask = await _dbContext.PickupTasks
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == batch.PickupTaskId, cancellationToken);
+
+        return new SegregationBatchDetailResponse(
+            batch.Id,
+            batch.BatchCode,
+            batch.Status.ToString(),
+            batch.PickupTaskId,
+            pickupTask?.PickupCode ?? string.Empty,
+            pickupTask?.SiteName ?? string.Empty,
+            pickupTask?.SiteAddressText ?? string.Empty,
+            pickupTask?.ScheduledAtUtc ?? DateTime.MinValue,
+            pickupTask?.CollectedWeightKg ?? 0m,
+            batch.PlasticKg,
+            batch.OrganicKg,
+            batch.MetalKg,
+            batch.PaperKg,
+            batch.EWasteKg,
+            batch.RecordedByUserId,
+            batch.RecordedAtUtc,
+            batch.RecycledByUserId,
+            batch.RecycledAtUtc,
+            batch.CreatedAtUtc,
+            batch.UpdatedAtUtc,
+            createdRecyclingBatchIds,
+            createdRecyclingBatchIds.Count);
     }
 
     private IQueryable<SegregationBatchDetailResponse> BuildDetailQuery(Guid id)
@@ -150,6 +202,8 @@ public class SegregationService
                     b.RecycledByUserId,
                     b.RecycledAtUtc,
                     b.CreatedAtUtc,
-                    b.UpdatedAtUtc));
+                    b.UpdatedAtUtc,
+                    new List<Guid>(),
+                    0));
     }
 }
