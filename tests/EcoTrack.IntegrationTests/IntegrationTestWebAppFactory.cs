@@ -13,8 +13,7 @@ namespace EcoTrack.IntegrationTests;
 
 public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine")
         .WithDatabase("ecotrack_test")
         .WithUsername("postgres")
         .WithPassword("postgres")
@@ -56,11 +55,16 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 
         // Create pickup task
-        var pickupTask = PickupTask.Create(
-            "pickup-001",
-            "Location A",
-            "team-1",
-            DateTime.UtcNow);
+        var nowUtc = DateTime.UtcNow;
+        var pickupTask = PickupTask.CreateScheduled(
+            siteName: "Location A",
+            siteAddressText: "Address A",
+            scheduledAtUtc: nowUtc,
+            estimatedWeightKg: 30m,
+            notes: null,
+            createdByUserId: Guid.NewGuid(),
+            createdAtUtc: nowUtc,
+            pickupCode: "pickup-001");
 
         dbContext.PickupTasks.Add(pickupTask);
 
@@ -71,7 +75,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             DateTime.UtcNow);
 
         dbContext.SegregationBatches.Add(segregationBatch);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(CancellationToken.None);
 
         // Record segregation data
         segregationBatch.Record(
@@ -84,7 +88,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             DateTime.UtcNow);
 
         dbContext.SegregationBatches.Update(segregationBatch);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(CancellationToken.None);
 
         return segregationBatch;
     }
